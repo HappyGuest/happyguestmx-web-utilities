@@ -1,0 +1,23 @@
+{
+  "name": "@happyguestmx/web-utilities",
+  "version": "3.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rafaeh1/happyguestmx-web-utilities.git"
+  },
+  "author": "Rafael Hernández Larios",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rafaeh1/happyguestmx-web-utilities/issues"
+  },
+  "homepage": "https://github.com/rafaeh1/happyguestmx-web-utilities#readme",
+  "dependencies": {
+    "deep-equal": "^1.0.1",
+    "uuid": "^3.3.2"
+  }
+}
