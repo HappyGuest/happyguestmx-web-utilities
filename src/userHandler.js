@@ -71,7 +71,6 @@ async function finUserInAdminUsers(sub) {
         ':uuid': sub
       }
     };
-    console.log('params: ', params);
     const res = await dynamodbDocumentClient.scan(params).promise();
     return res;
   } catch (err) {

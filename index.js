@@ -1,3 +1,5 @@
+'use strict';
+
 const   activityLogHandler = require('./src/activityLogHandler'),
         assetsHandler = require('./src/assetsHandler'),
         common = require('./src/common'),
