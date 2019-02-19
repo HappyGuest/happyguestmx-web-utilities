@@ -26,6 +26,7 @@ assetsHandler.getImage = function (url, format) {
         let arrayOfPath = newPath.split('/');
         newPath = arrayOfPath.splice(arrayOfPath.length - 1, 0, imageFormats[format]);
         newPath = arrayOfPath.join('/');
+        newPath += `?${Date.now()}`;
         return newPath;
     } else return url;
 }
