@@ -191,7 +191,7 @@ async function getManagerHotels(user_uuid) {
     };
     const res = await dynamodbDocumentClient.scan(params).promise();
     if (res.Count > 0) {
-      hotels = [];
+      let hotels = [];
       for (const hotel of res.Items) {
         hotels.push(hotel.hotel_uuid);
       }

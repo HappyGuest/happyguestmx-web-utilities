@@ -6,7 +6,8 @@ const   activityLogHandler = require('./src/activityLogHandler'),
         errorsHandler = require('./src/errorsHandler'),
         paramsHandler = require('./src/paramsHandler'),
         response = require('./src/response'),
-        userHandler = require('./src/userHandler');
+        userHandler = require('./src/userHandler'),
+        fsp = require('./src/fsp');
 
 module.exports = {
     activityLogHandler,
@@ -15,5 +16,6 @@ module.exports = {
     errorsHandler,
     paramsHandler,
     response,
-    userHandler
+    userHandler,
+    fsp
 }
