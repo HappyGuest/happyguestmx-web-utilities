@@ -202,10 +202,20 @@ async function getManagerHotels(user_uuid) {
   }
 }
 
+async function cognitoAttributesToJson(arr) {
+  try {
+    let obj = {}
+    for (const item of arr) obj[item.Name] = item.Value
+    return obj
+  } catch (err) {
+    throw (err);
+  }
+}
 
 module.exports = {
   getUserFromJWT,
   getCognitoUser,
   findUserInDB,
-  permissionsValidate
+  permissionsValidate,
+  cognitoAttributesToJson
 }
