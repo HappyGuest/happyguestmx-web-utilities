@@ -115,11 +115,14 @@ async function permissionsValidate(user, level, company_uuid = undefined, hotel_
         }
         break;
       case "CO_manager":
-        if (level === "company") reject(forbidden_error);
+        if (level === "company") throw 'Access denied';
         else {
           res = await validateHotelActionAsManager(user.uuid, hotel_uuid);
           return 'forward';
         }
+        break;
+      default: 
+        throw 'Access denied'
         break;
     }
   } catch (err) {
