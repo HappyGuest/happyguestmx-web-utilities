@@ -1,5 +1,5 @@
 'use strict';
-//ver 0.10 async await
+
 const AWS = require('aws-sdk'),
   env = process.env;
 
@@ -8,18 +8,6 @@ AWS.config.update({
 });
 const cognito = new AWS.CognitoIdentityServiceProvider(),
   dynamodbDocumentClient = new AWS.DynamoDB.DocumentClient();
-
-var forbidden_error = {
-  "message": "Access denied.",
-  "code": "ValidationException",
-  "statusCode": 403
-};
-
-var not_found_error = {
-  "message": "Resource not found",
-  "code": "ValidationException",
-  "statusCode": 404
-};
 
 async function getUserFromJWT(AccessToken) {
   try {
@@ -47,31 +35,43 @@ async function getCognitoUser(AccessToken) {
 
 async function findUserInDB(sub) {
   try {
-    let res = await finUserInAdminUsers(sub);
-    if (res.Count > 0) return res.Items[0];
-    else {
-      res = await finUserInStaffUsers(sub);
-      if (res.Count > 0) return res.Items[0];
-      else throw 'User does not exist';
-    }
+    const concierge = await finUserInConciergeUsers(sub);
+    if (concierge.Count > 0) return concierge.Items[0];
+    const admin = await finUserInAdminUsers(sub);
+    if (admin.Count > 0) return admin.Items[0];
+    const co_staff = await finUserInCoStaffUsers(sub);
+    if (co_staff.Count > 0) return co_staff.Items[0];
+    const staff = await finUserInStaffUsers(sub);
+    if (staff.Count > 0) return staff.Items[0];
+
+    if (concierge.Count === 0 &&
+      admin.Count === 0 &&
+      co_staff.Count === 0 &&
+      staff.Count === 0) throw 'User does not exist';
+
   } catch (err) {
     throw (err);
   }
 };
 
-async function finUserInAdminUsers(sub) {
+async function finUserInAdminUsers(uuid, fields = []) {
   try {
-    const params = {
+    let params = {
       TableName: env.DDB_ADMIN_USERS_TABLE,
-      FilterExpression: '#uuid = :uuid',
+      IndexName: 'uuid-index',
+      KeyConditionExpression: '#uuid = :uuid',
+      ExpressionAttributeValues: {
+        ':uuid': uuid
+      },
       ExpressionAttributeNames: {
         '#uuid': 'uuid'
-      },
-      ExpressionAttributeValues: {
-        ':uuid': sub
       }
     };
-    const res = await dynamodbDocumentClient.scan(params).promise();
+    console.log('params: ', params);
+    if (fields.length > 0) {
+      params = await pushParamstoObject(fields, params);
+    }
+    const res = await dynamodbDocumentClient.query(params).promise();
     return res;
   } catch (err) {
     throw (err);
@@ -80,9 +80,9 @@ async function finUserInAdminUsers(sub) {
 
 async function finUserInStaffUsers(sub) {
   try {
-    let params = {
+    const params = {
       TableName: env.DDB_STAFF_USERS_TABLE,
-      FilterExpression: '#uuid = :uuid',
+      KeyConditionExpression: '#uuid = :uuid',
       ExpressionAttributeNames: {
         '#uuid': 'uuid'
       },
@@ -90,13 +90,52 @@ async function finUserInStaffUsers(sub) {
         ':uuid': sub
       }
     };
-    const res = await dynamodbDocumentClient.scan(params).promise();
-    return res;
+    return await dynamodbDocumentClient.query(params).promise();
   } catch (err) {
     throw (err);
   }
 };
 
+async function finUserInCoStaffUsers(sub) {
+  try {
+    const params = {
+      TableName: env.DDB_CO_STAFF_USERS_TABLE,
+      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled',
+      KeyConditionExpression: '#uuid = :uuid',
+      IndexName: 'uuid-index',
+      ExpressionAttributeNames: {
+        '#uuid': 'uuid',
+        '#name': 'name',
+        '#status': 'status'
+      },
+      ExpressionAttributeValues: {
+        ':uuid': sub
+      }
+    };
+    return await dynamodbDocumentClient.query(params).promise();
+  } catch (err) {
+    throw (err);
+  }
+};
+
+async function finUserInConciergeUsers(sub) {
+  try {
+    const params = {
+      TableName: env.DDB_HOTEL_CONCIERGES,
+      KeyConditionExpression: '#uuid = :uuid',
+      IndexName: 'uuid-index',
+      ExpressionAttributeNames: {
+        '#uuid': 'uuid'
+      },
+      ExpressionAttributeValues: {
+        ':uuid': sub
+      }
+    };
+    return await dynamodbDocumentClient.query(params).promise();
+  } catch (err) {
+    throw (err);
+  }
+};
 
 async function permissionsValidate(user, level, company_uuid = undefined, hotel_uuid = undefined) {
   try {
@@ -121,7 +160,7 @@ async function permissionsValidate(user, level, company_uuid = undefined, hotel_
           return 'forward';
         }
         break;
-      default: 
+      default:
         throw 'Access denied'
         break;
     }
