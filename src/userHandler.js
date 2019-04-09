@@ -35,13 +35,13 @@ async function getCognitoUser(AccessToken) {
 
 async function findUserInDB(sub) {
   try {
-    const concierge = await finUserInConciergeUsers(sub);
+    const concierge = await findUserInConciergeUsers(sub);
     if (concierge.Count > 0) return concierge.Items[0];
-    const admin = await finUserInAdminUsers(sub);
+    const admin = await findUserInAdminUsers(sub);
     if (admin.Count > 0) return admin.Items[0];
-    const co_staff = await finUserInCoStaffUsers(sub);
+    const co_staff = await findUserInCoStaffUsers(sub);
     if (co_staff.Count > 0) return co_staff.Items[0];
-    const staff = await finUserInStaffUsers(sub);
+    const staff = await findUserInStaffUsers(sub);
     if (staff.Count > 0) return staff.Items[0];
 
     if (concierge.Count === 0 &&
@@ -54,7 +54,7 @@ async function findUserInDB(sub) {
   }
 };
 
-async function finUserInAdminUsers(uuid, fields = []) {
+async function findUserInAdminUsers(uuid, fields = []) {
   try {
     let params = {
       TableName: env.DDB_ADMIN_USERS_TABLE,
@@ -67,7 +67,6 @@ async function finUserInAdminUsers(uuid, fields = []) {
         '#uuid': 'uuid'
       }
     };
-    console.log('params: ', params);
     if (fields.length > 0) {
       params = await pushParamstoObject(fields, params);
     }
@@ -78,7 +77,7 @@ async function finUserInAdminUsers(uuid, fields = []) {
   }
 };
 
-async function finUserInStaffUsers(sub) {
+async function findUserInStaffUsers(sub) {
   try {
     const params = {
       TableName: env.DDB_STAFF_USERS_TABLE,
@@ -96,11 +95,11 @@ async function finUserInStaffUsers(sub) {
   }
 };
 
-async function finUserInCoStaffUsers(sub) {
+async function findUserInCoStaffUsers(sub) {
   try {
     const params = {
       TableName: env.DDB_CO_STAFF_USERS_TABLE,
-      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled',
+      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale',
       KeyConditionExpression: '#uuid = :uuid',
       IndexName: 'uuid-index',
       ExpressionAttributeNames: {
@@ -118,7 +117,7 @@ async function finUserInCoStaffUsers(sub) {
   }
 };
 
-async function finUserInConciergeUsers(sub) {
+async function findUserInConciergeUsers(sub) {
   try {
     const params = {
       TableName: env.DDB_HOTEL_CONCIERGES,
@@ -254,10 +253,101 @@ async function cognitoAttributesToJson(arr) {
   }
 }
 
+async function findUserByEmail(email) {
+  try {
+    const concierge = await findConciergeByEmail(email);
+    if (concierge.Count > 0) return concierge.Items[0];
+    const admin = await findAdminUserByEmail(email);
+    if (admin.Count > 0) return admin.Items[0];
+    const co_staff = await findCoStaffUserByEmail(email);
+    if (co_staff.Count > 0) return co_staff.Items[0];
+    const staff = await findStaffUserByEmail(email);
+    if (staff.Count > 0) return staff.Items[0];
+
+    if (concierge.Count === 0 &&
+      admin.Count === 0 &&
+      co_staff.Count === 0 &&
+      staff.Count === 0) throw 'User does not exist';
+  }
+  catch (err) {
+    throw (err);
+  }
+}
+
+async function findAdminUserByEmail(email) {
+  try {
+    const params = {
+      TableName: env.DDB_ADMIN_USERS_TABLE,
+      KeyConditionExpression: 'email = :email',
+      IndexName: 'email-index',
+      ExpressionAttributeValues: {
+        ':email': email
+      }
+    };
+    const res = await dynamodbDocumentClient.query(params).promise();
+    return res;
+  }
+  catch (err) {
+    throw (err);
+  }
+}
+
+async function findStaffUserByEmail(email) {
+  try {
+    const params = {
+      TableName: env.DDB_STAFF_USERS_TABLE,
+      KeyConditionExpression: 'email = :email',
+      IndexName: 'email-index',
+      ExpressionAttributeValues: {
+        ':email': email
+      }
+    };
+    const res = await dynamodbDocumentClient.query(params).promise();
+    return res;
+  } catch (err) {
+    throw (err);
+  }
+}
+
+async function findCoStaffUserByEmail(email) {
+  try {
+    const params = {
+      TableName: env.DDB_CO_STAFF_USERS_TABLE,
+      KeyConditionExpression: 'email = :email',
+      IndexName: 'email-index',
+      ExpressionAttributeValues: {
+        ':email': email,
+      }
+    };
+    const res = await dynamodbDocumentClient.query(params).promise();
+    return res;
+  } catch (err) {
+    throw (err);
+  }
+}
+
+async function findConciergeByEmail(email) {
+  try {
+    const params = {
+      TableName: env.DDB_HOTEL_CONCIERGES,
+      KeyConditionExpression: 'email = :email',
+      IndexName: 'email-index',
+      ExpressionAttributeValues: {
+        ':email': email
+      }
+    };
+    const res = await dynamodbDocumentClient.query(params).promise();
+    return res;
+  } catch (err) {
+    throw (err);
+  }
+}
+
 module.exports = {
   getUserFromJWT,
   getCognitoUser,
   findUserInDB,
   permissionsValidate,
-  cognitoAttributesToJson
+  cognitoAttributesToJson,
+  findUserByEmail
 }
