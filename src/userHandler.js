@@ -399,8 +399,18 @@ module.exports = {
   getUserFromJWT,
   getCognitoUser,
   findUserInDB,
+  findUserInConciergeUsers,
+  findUserInAdminUsers,
+  findUserInCoStaffUsers,
+  findUserInStaffUsers,
   permissionsValidate,
   cognitoAttributesToJson,
   findUserByEmail,
-  findUserByEmployeeNumber
+  findAdminUserByEmail,
+  findCoStaffUserByEmail,
+  findStaffUserByEmail,
+  findAdminUserByEmail,
+  findUserByEmployeeNumber,
+  findConciergeByEmplNumber,
+  findCoStaffUserByEmplNumber
 }
