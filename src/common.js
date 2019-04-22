@@ -7,24 +7,24 @@
 
 
 /* 
-* common regular expressions
-*/
+ * common regular expressions
+ */
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const urlReGex = /^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$/;
-const base64Regex = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+const base64Regex = /^[-A-Za-z0-9+=]{1,50}|=[^=]|={3,}$/;
 const emailRegex = /^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$/;
 
 /*
-* this function evaluate a string to know if it 's an url
-*/
+ * this function evaluate a string to know if it 's an url
+ */
 function isURL(string) {
   const res = new RegExp(urlReGex);
   return res.test(string);
 }
 
 /*
-* this function evaluate a string to know if it's an base64 image
-*/
+ * this function evaluate a string to know if it's an base64 image
+ */
 function isBase64(string) {
   const res = new RegExp(base64Regex);
   return res.test(string);
@@ -50,14 +50,14 @@ async function cleanFields(Item) {
   });
   return Item;
 }
-  
+
 function notUndefined(val) {
   return (val !== null && val !== undefined && val !== "");
 }
 
 function isEmpty(obj) {
-  for(var key in obj) {
-    if(obj.hasOwnProperty(key))
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key))
       return false;
   }
   return true;
@@ -98,5 +98,7 @@ module.exports = {
   getCleanedString,
   cleanedObject,
   isBase64,
-  emailRegex
+  emailRegex,
+  urlReGex,
+  base64Regex
 }

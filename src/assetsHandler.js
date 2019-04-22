@@ -1,17 +1,18 @@
-//ver 0.2
+'use strict';
+
 const AWS = require('aws-sdk'),
-    uuidv4 = require('uuid/v4'),
+    common = require(__dirname + '/common'),
+    uuid = require('uuid'),
+    Joi = require('joi'),
     env = process.env;
 
 AWS.config.update({
     region: env.REGION
 });
 
-var s3 = new AWS.S3();
+const s3 = new AWS.S3();
 
-var assetsHandler = module.exports = {};
-
-var imageFormats = {
+const imageFormats = {
     "thumbnail": "75x75",
     "thumbnail_retina": "150x150",
     "thumbnail_3x": "300x300",
@@ -20,77 +21,133 @@ var imageFormats = {
     "full_image_retina": "1024x768"
 };
 
-assetsHandler.getImage = function (url, format) {
-    if (url && format) {
+async function getImage(url, format) {
+    try {
+        await validateGetImage(url, format);
         let newPath = url.split("?")[0]; //if had timestamp.
         let arrayOfPath = newPath.split('/');
         newPath = arrayOfPath.splice(arrayOfPath.length - 1, 0, imageFormats[format]);
         newPath = arrayOfPath.join('/');
         newPath += `?${Date.now()}`;
         return newPath;
-    } else return url;
+    } catch (err) {
+        throw (err);
+    }
 }
 
-assetsHandler.storeImage = function (request_params) {
-    return new Promise((resolve, reject) => {
-        // console.log('request_params: ', request_params, '\n');
-        let format = request_params.format || 'jpeg';
-        let key = request_params.key || 'image';
-        let blob = base64ToBlob(request_params.image);
-        let params = {
+async function storeImage(req) {
+    try {
+        await validateParamsToSave(req);
+        const format = req.format || 'jpeg';
+        const key = req.key || 'image';
+        const blob = await base64ToBlob(req.image);
+        const params = {
             Body: blob,
-            Bucket: request_params.path.bucket,
+            Bucket: req.path.bucket,
             Key: `${key}.${format}`,
             ContentEncoding: 'base64',
             ContentType: `image/${format}`,
             ACL: 'public-read'
         };
-        // console.log('PARAMS: ', params, '\n');
-        s3.putObject(params)
-            .promise()
-            .then((data) => {
-                resolve(data);
-            })
-            .catch((err) => {
-                console.log('err: ', err);
-                reject(err);
-            });
-    });
+        return await s3.putObject(params).promise();
+    } catch (err) {
+        throw (err);
+    }
 }
 
-//gallery, format, path
-assetsHandler.storeGallery = async function (request_params) {
-    return new Promise((resolve, reject) => {
-        let urls = [];
-        let key;
-        let current;
-        let format = request_params.format || 'jpeg';
-        let promises = [];
-        if (request_params.photo_gallery.length > 0) {
-            request_params.photo_gallery.forEach((item) => {
-                key = uuidv4();
-                current = {
-                    key: key,
+async function storeGallery(req) {
+    try {
+        let key,
+            urls = [],
+            promises = [];
+        await validateParamsToSaveGallery(req);
+        const format = req.format || 'jpeg';
+        if (req.photo_gallery.length > 0) {
+            for (const item of req.photo_gallery) {
+                key = uuid.v4();
+                promises.push(this.storeImage({
+                    key,
                     image: item,
-                    path: request_params.path
-                }
-                promises.push(this.storeImage(current));
-                urls.push(`${request_params.path.public}/${key}.${format}`);
-            });
-            let response = Promise.all(promises);
-            response.then((data) => {
-                resolve(urls);
-            }).catch((err) => {
-                reject(err);
-            });
+                    path: req.path
+                }));
+                urls.push(`${req.path.public}/${key}.${format}`);
+            }
+            await Promise.all(promises);
+            return urls;
         } else resolve(urls);
-    });
+    } catch (err) {
+        throw (err);
+    }
 }
 
-
-function base64ToBlob(base64String) {
-    let blob = "";
-    if (base64String !== null && base64String !== undefined && base64String !== "")
-        blob = new Buffer(base64String.replace(/^data:image\/\w+;base64,/, ""), 'base64');
-    return blob;
+async function base64ToBlob(base64String) {
+    try {
+        let blob = "";
+        if (base64String)
+            blob = new Buffer(base64String.replace(/^data:image\/\w+;base64,/, ""), 'base64');
+        return blob;
+    } catch (err) {
+        throw (err);
+    }
 }
+
+async function validateParamsToSave(req) {
+    try {
+        const schema = Joi.object().keys({
+            image: Joi.string().regex(common.base64Regex).required(),
+            format: Joi.valid("png", "jpeg", "jpg").required(),
+            key: Joi.string().min(1).required(),
+            path: Joi.object({
+                public: Joi.string().regex(common.urlReGex).required(),
+                bucket: Joi.string().regex(common.urlReGex).required()
+            })
+        });
+        const result = Joi.validate(req, schema);
+        if (result.err) throw (result.err);
+        else return result;
+    } catch (err) {
+        throw (err);
+    }
+}
+
+async function validateParamsToSaveGallery(req) {
+    try {
+        const image = Joi.string().regex(common.base64Regex).required();
+        const schema = Joi.object().keys({
+            photo_gallery: Joi.array().items(image),
+            format: Joi.valid("png", "jpeg", "jpg").required(),
+            path: Joi.object({
+                public: Joi.string().regex(common.urlReGex).required(),
+                bucket: Joi.string().regex(common.urlReGex).required()
+            })
+        });
+        const result = Joi.validate(req, schema);
+        if (result.err) throw (result.err);
+        else return result;
+    } catch (err) {
+        throw (err);
+    }
+}
+
+async function validateGetImage(url, format) {
+    try {
+        const schema = Joi.object().keys({
+            url: Joi.string().regex(common.urlReGex).required(),
+            format: Joi.valid(Object.keys(imageFormats)).required(),
+        });
+        const result = Joi.validate({
+            url,
+            format
+        }, schema);
+        if (result.err) throw (result.err);
+        else return result;
+    } catch (err) {
+        throw (err);
+    }
+}
+
+module.exports = {
+    getImage,
+    storeImage,
+    storeGallery
+};
