@@ -71,6 +71,9 @@ async function findUserInAdminUsers(uuid, fields = []) {
       params = await pushParamstoObject(fields, params);
     }
     const res = await dynamodbDocumentClient.query(params).promise();
+    if (res.Count > 0 && res.Items[0].role_key === 'CO_manager') {
+      res.Items[0].hotels = await getManagerHotels(res.Items[0].uuid);
+    }
     return res;
   } catch (err) {
     throw (err);
@@ -219,10 +222,12 @@ async function getDDBHotel(hotel_uuid) {
 
 async function getManagerHotels(user_uuid) {
   try {
+    let hotels = [];
     let params = {
       TableName: env.DDB_HOTELS_USERS,
       ProjectionExpression: 'hotel_uuid',
-      FilterExpression: '#user_uuid = :user_uuid',
+      KeyConditionExpression: '#user_uuid = :user_uuid',
+      IndexName: 'user_uuid-index',
       ExpressionAttributeValues: {
         ':user_uuid': user_uuid
       },
@@ -230,14 +235,11 @@ async function getManagerHotels(user_uuid) {
         '#user_uuid': 'user_uuid'
       }
     };
-    const res = await dynamodbDocumentClient.scan(params).promise();
-    if (res.Count > 0) {
-      let hotels = [];
-      for (const hotel of res.Items) {
-        hotels.push(hotel.hotel_uuid);
-      }
-      return hotels;
-    } else throw ('Items not found');
+    const res = await dynamodbDocumentClient.query(params).promise();
+    for (const hotel of res.Items) {
+      hotels.push(hotel.hotel_uuid);
+    }
+    return hotels;
   } catch (err) {
     throw (err);
   }
@@ -284,6 +286,9 @@ async function findAdminUserByEmail(email) {
       }
     };
     const res = await dynamodbDocumentClient.query(params).promise();
+    if (res.Count > 0 && res.Items[0].role_key === 'CO_manager') {
+      res.Items[0].hotels = await getManagerHotels(res.Items[0].uuid);
+    }
     return res;
   } catch (err) {
     throw (err);
