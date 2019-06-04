@@ -102,7 +102,7 @@ async function findUserInCoStaffUsers(sub) {
   try {
     const params = {
       TableName: env.DDB_CO_STAFF_USERS_TABLE,
-      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale',
+      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, notifications',
       KeyConditionExpression: '#uuid = :uuid',
       IndexName: 'uuid-index',
       ExpressionAttributeNames: {
@@ -352,9 +352,15 @@ async function findUserByEmployeeNumber(employee_number) {
     if (concierge.Count > 0) return concierge.Items[0];
     const co_staff = await findCoStaffUserByEmplNumber(employee_number);
     if (co_staff.Count > 0) return co_staff.Items[0];
+    const admin = await findAdminUserByEmplNumber(employee_number);
+    if (admin.Count > 0) return admin.Items[0];
+    const staff = await findStaffUserByEmplNumber(employee_number);
+    if (staff.Count > 0) return staff.Items[0];
 
-    if (concierge.Count === 0 && co_staff.Count === 0)
-      throw 'User does not exist';
+    if (concierge.Count === 0 &&
+      admin.Count === 0 &&
+      co_staff.Count === 0 &&
+      staff.Count === 0) throw 'User does not exist';
   } catch (err) {
     throw (err);
   }
@@ -381,6 +387,52 @@ async function findCoStaffUserByEmplNumber(employee_number) {
   try {
     const params = {
       TableName: env.DDB_CO_STAFF_USERS_TABLE,
+      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale',
+      KeyConditionExpression: 'employee_number = :employee_number',
+      IndexName: 'employee_number-index',
+      ExpressionAttributeNames: {
+        '#uuid': 'uuid',
+        '#name': 'name',
+        '#status': 'status'
+      },
+      ExpressionAttributeValues: {
+        ':employee_number': employee_number,
+      }
+    };
+    const res = await dynamodbDocumentClient.query(params).promise();
+    return res;
+  } catch (err) {
+    throw (err);
+  }
+}
+
+async function findStaffUserByEmplNumber(employee_number) {
+  try {
+    const params = {
+      TableName: env.DDB_STAFF_USERS_TABLE,
+      ProjectionExpression: '#name, email, #uuid, #status, last_name, role_key, enabled, locale',
+      KeyConditionExpression: 'employee_number = :employee_number',
+      IndexName: 'employee_number-index',
+      ExpressionAttributeNames: {
+        '#uuid': 'uuid',
+        '#name': 'name',
+        '#status': 'status'
+      },
+      ExpressionAttributeValues: {
+        ':employee_number': employee_number,
+      }
+    };
+    const res = await dynamodbDocumentClient.query(params).promise();
+    return res;
+  } catch (err) {
+    throw (err);
+  }
+}
+
+async function findAdminUserByEmplNumber(employee_number) {
+  try {
+    const params = {
+      TableName: env.DDB_ADMIN_USERS_TABLE,
       ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale',
       KeyConditionExpression: 'employee_number = :employee_number',
       IndexName: 'employee_number-index',
