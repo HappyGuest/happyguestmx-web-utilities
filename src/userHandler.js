@@ -58,22 +58,22 @@ async function findUserInAdminUsers(uuid, fields = []) {
   try {
     let params = {
       TableName: env.DDB_ADMIN_USERS_TABLE,
+      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuids, locale, notifications',
       IndexName: 'uuid-index',
       KeyConditionExpression: '#uuid = :uuid',
       ExpressionAttributeValues: {
         ':uuid': uuid
       },
       ExpressionAttributeNames: {
-        '#uuid': 'uuid'
+        '#uuid': 'uuid',
+        '#name': 'name',
+        '#status': 'status'
       }
     };
     if (fields.length > 0) {
       params = await pushParamstoObject(fields, params);
     }
     const res = await dynamodbDocumentClient.query(params).promise();
-    if (res.Count > 0 && res.Items[0].role_key === 'CO_manager') {
-      res.Items[0].hotels = await getManagerHotels(res.Items[0].uuid);
-    }
     return res;
   } catch (err) {
     throw (err);
@@ -84,9 +84,12 @@ async function findUserInStaffUsers(sub) {
   try {
     const params = {
       TableName: env.DDB_STAFF_USERS_TABLE,
+      ProjectionExpression: '#name, email, #uuid, #status, last_name, role_key, enabled, locale, notifications',
       KeyConditionExpression: '#uuid = :uuid',
       ExpressionAttributeNames: {
-        '#uuid': 'uuid'
+        '#uuid': 'uuid',
+        '#name': 'name',
+        '#status': 'status'
       },
       ExpressionAttributeValues: {
         ':uuid': sub
@@ -124,10 +127,13 @@ async function findUserInConciergeUsers(sub) {
   try {
     const params = {
       TableName: env.DDB_HOTEL_CONCIERGES,
+      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, notifications',
       KeyConditionExpression: '#uuid = :uuid',
       IndexName: 'uuid-index',
       ExpressionAttributeNames: {
-        '#uuid': 'uuid'
+        '#uuid': 'uuid',
+        '#name': 'name',
+        '#status': 'status'
       },
       ExpressionAttributeValues: {
         ':uuid': sub
@@ -279,10 +285,16 @@ async function findAdminUserByEmail(email) {
   try {
     const params = {
       TableName: env.DDB_ADMIN_USERS_TABLE,
+      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuids, locale, notifications',
       KeyConditionExpression: 'email = :email',
       IndexName: 'email-index',
       ExpressionAttributeValues: {
         ':email': email
+      },
+      ExpressionAttributeNames: {
+        '#uuid': 'uuid',
+        '#name': 'name',
+        '#status': 'status'
       }
     };
     const res = await dynamodbDocumentClient.query(params).promise();
@@ -299,10 +311,16 @@ async function findStaffUserByEmail(email) {
   try {
     const params = {
       TableName: env.DDB_STAFF_USERS_TABLE,
+      ProjectionExpression: '#name, email, #uuid, #status, last_name, role_key, enabled, locale, notifications',
       KeyConditionExpression: 'email = :email',
       IndexName: 'email-index',
       ExpressionAttributeValues: {
         ':email': email
+      },
+      ExpressionAttributeNames: {
+        '#uuid': 'uuid',
+        '#name': 'name',
+        '#status': 'status'
       }
     };
     const res = await dynamodbDocumentClient.query(params).promise();
@@ -316,10 +334,16 @@ async function findCoStaffUserByEmail(email) {
   try {
     const params = {
       TableName: env.DDB_CO_STAFF_USERS_TABLE,
+      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuids, locale, notifications',
       KeyConditionExpression: 'email = :email',
       IndexName: 'email-index',
       ExpressionAttributeValues: {
         ':email': email,
+      },
+      ExpressionAttributeNames: {
+        '#uuid': 'uuid',
+        '#name': 'name',
+        '#status': 'status'
       }
     };
     const res = await dynamodbDocumentClient.query(params).promise();
@@ -333,10 +357,16 @@ async function findConciergeByEmail(email) {
   try {
     const params = {
       TableName: env.DDB_HOTEL_CONCIERGES,
+      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, notifications',
       KeyConditionExpression: 'email = :email',
       IndexName: 'email-index',
       ExpressionAttributeValues: {
         ':email': email
+      },
+      ExpressionAttributeNames: {
+        '#uuid': 'uuid',
+        '#name': 'name',
+        '#status': 'status'
       }
     };
     const res = await dynamodbDocumentClient.query(params).promise();
@@ -370,10 +400,16 @@ async function findConciergeByEmplNumber(employee_number) {
   try {
     const params = {
       TableName: env.DDB_HOTEL_CONCIERGES,
+      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, notifications',
       KeyConditionExpression: 'employee_number = :employee_number',
       IndexName: 'employee_number-index',
       ExpressionAttributeValues: {
         ':employee_number': employee_number
+      },
+      ExpressionAttributeNames: {
+        '#uuid': 'uuid',
+        '#name': 'name',
+        '#status': 'status'
       }
     };
     const res = await dynamodbDocumentClient.query(params).promise();
