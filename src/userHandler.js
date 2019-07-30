@@ -164,7 +164,7 @@ async function permissionsValidate(user, level, company_uuid = undefined, hotel_
       case "CO_manager":
         if (level === "company") throw 'Access denied';
         else {
-          res = await validateHotelActionAsManager(user.uuid, hotel_uuid);
+          res = await validateHotelActionAsManager(user, hotel_uuid);
           return 'forward';
         }
         break;
@@ -196,10 +196,9 @@ async function validateHotelActionAsAdmin(user_company_uuid, hotel_uuid) {
   }
 };
 
-async function validateHotelActionAsManager(user_uuid, hotel_uuid) {
+async function validateHotelActionAsManager(user, hotel_uuid) {
   try {
-    const hotels = await getManagerHotels(user_uuid)
-    if (hotels.includes(hotel_uuid)) return ("forward");
+    if (user.hotel_uuids.includes(hotel_uuid)) return ("forward");
     else throw 'Access denied';
   } catch (err) {
     throw (err);
