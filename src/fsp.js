@@ -9,8 +9,6 @@ module.exports = {
             if(term.length>0){
                 this.data = this.data.filter(function (value, index, ar) {
                     var result = false;
-                    console.log('===FILTER COLUMNS===', _this.filterColums);
-                    console.log('=====VALUE=====',value);
                     _this.filterColums.forEach(function (element) {
                         if (value[element]) {
                             if(typeof(term) === 'string'){
