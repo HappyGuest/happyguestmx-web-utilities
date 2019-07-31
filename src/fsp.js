@@ -6,16 +6,28 @@ module.exports = {
         }
         FSP.prototype.Filter = function (term) {
             var _this = this;
-            this.data = this.data.filter(function (value, index, ar) {
-                var result = false;
-                _this.filterColums.forEach(function (element) {
-                    if (value[element]) {
-                        if (value[element].toString().toLowerCase().match(term.toLowerCase()))
-                            result = true;
-                    }
+            if(term.length>0){
+                this.data = this.data.filter(function (value, index, ar) {
+                    var result = false;
+                    console.log('===FILTER COLUMNS===', _this.filterColums);
+                    console.log('=====VALUE=====',value);
+                    _this.filterColums.forEach(function (element) {
+                        if (value[element]) {
+                            if(typeof(term) === 'string'){
+                                if (value[element].toString().toLowerCase().match(term.toLowerCase()))
+                                result = true; 
+                            }else{
+                                term.forEach(item=>{
+                                    if (value[element].toString().toLowerCase().match(item.toLowerCase())){
+                                        result = true;
+                                    }
+                                });
+                            }
+                        }
+                    });
+                    return result;
                 });
-                return result;
-            });
+            }
         };
         FSP.prototype.Sort = function (orderBy, sortType) {
             this.data.sort(function (a, b) {
