@@ -29,13 +29,28 @@ module.exports = {
         };
         FSP.prototype.Sort = function (orderBy, sortType) {
             this.data.sort(function (a, b) {
+                let leftHas = a.hasOwnProperty(orderBy);
+                let rightHas = b.hasOwnProperty(orderBy);
+                if (leftHas && rightHas) {
+                    if(a[orderBy].toLowerCase() === b[orderBy].toLowerCase()){
+                        return 0;
+                    }
+                    if(sortType==='asc'){
+                        return (a[orderBy].toLowerCase() > b[orderBy].toLowerCase() ? 1 : -1);
+                    }else{
+                        return (a[orderBy].toLowerCase() < b[orderBy].toLowerCase() ? 1 : -1);
+                    }
+                }
+                return leftHas ? -1 : rightHas ? 1 : 0;
+            });
+            /*this.data.sort(function (a, b) {
                 if (a[orderBy] > b[orderBy]) {
                     return sortType === 'desc' ? -1 : 1;
                 } else if (a[orderBy] < b[orderBy]) {
                     return sortType === 'asc' ? -1 : 1;
                 }
                 return 0;
-            });
+            });*/
         };
         FSP.prototype.Pagin = function (page, size) {
             var start = (page - 1) * size;
