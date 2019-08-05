@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rafaeh1/happyguestmx-web-utilities.git"
+    "url": "git+https://github.com/HappyGuest/happyguestmx-web-utilities.git"
   },
   "author": "Rafael Hernández Larios",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/rafaeh1/happyguestmx-web-utilities/issues"
+    "url": "https://github.com/HappyGuest/happyguestmx-web-utilities/issues"
   },
-  "homepage": "https://github.com/rafaeh1/happyguestmx-web-utilities#readme",
+  "homepage": "https://github.com/HappyGuest/happyguestmx-web-utilities#readme",
   "dependencies": {
     "deep-equal": "^1.0.1",
     "joi": "^14.3.1",
