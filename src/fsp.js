@@ -33,6 +33,8 @@ module.exports = {
                 let leftHas = a.hasOwnProperty(orderBy);
                 let rightHas = b.hasOwnProperty(orderBy);
                 if (leftHas && rightHas) {
+                    a[orderBy]=a[orderBy].toString();
+                    b[orderBy]=b[orderBy].toString();
                     if(a[orderBy].toLowerCase() === b[orderBy].toLowerCase()){
                         return 0;
                     }
