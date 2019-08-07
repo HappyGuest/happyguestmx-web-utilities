@@ -30,18 +30,20 @@ module.exports = {
         };
         FSP.prototype.Sort = function (orderBy, sortType) {
             this.data.sort(function (a, b) {
+                a_to_string='';
+                b_to_string='';
                 let leftHas = a.hasOwnProperty(orderBy);
                 let rightHas = b.hasOwnProperty(orderBy);
                 if (leftHas && rightHas) {
-                    a[orderBy]=a[orderBy].toString();
-                    b[orderBy]=b[orderBy].toString();
-                    if(a[orderBy].toLowerCase() === b[orderBy].toLowerCase()){
+                    a_to_string=a[orderBy].toString();
+                    b_to_string=b[orderBy].toString();
+                    if(a_to_string.toLowerCase() === b_to_string.toLowerCase()){
                         return 0;
                     }
                     if(sortType==='asc'){
-                        return (a[orderBy].toLowerCase() > b[orderBy].toLowerCase() ? 1 : -1);
+                        return (a_to_string.toLowerCase() > b_to_string.toLowerCase() ? 1 : -1);
                     }else{
-                        return (a[orderBy].toLowerCase() < b[orderBy].toLowerCase() ? 1 : -1);
+                        return (a_to_string.toLowerCase() < b_to_string.toLowerCase() ? 1 : -1);
                     }
                 }
                 if(sortType==='asc'){
