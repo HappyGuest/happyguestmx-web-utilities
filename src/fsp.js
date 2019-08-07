@@ -35,15 +35,22 @@ module.exports = {
                 let leftHas = a.hasOwnProperty(orderBy);
                 let rightHas = b.hasOwnProperty(orderBy);
                 if (leftHas && rightHas) {
-                    a_to_string=a[orderBy].toString();
-                    b_to_string=b[orderBy].toString();
-                    if(a_to_string.toLowerCase() === b_to_string.toLowerCase()){
-                        return 0;
+                    if(a[orderBy] && b[orderBy]){
+                        a_to_string=a[orderBy].toString();
+                        b_to_string=b[orderBy].toString();
+                        if(a_to_string.toLowerCase() === b_to_string.toLowerCase()){
+                            return 0;
+                        }
+                        if(sortType==='asc'){
+                            return (a_to_string.toLowerCase() > b_to_string.toLowerCase() ? 1 : -1);
+                        }else{
+                            return (a_to_string.toLowerCase() < b_to_string.toLowerCase() ? 1 : -1);
+                        }
                     }
                     if(sortType==='asc'){
-                        return (a_to_string.toLowerCase() > b_to_string.toLowerCase() ? 1 : -1);
+                        return a[orderBy] ? -1 : b[orderBy] ? 1 : 0;
                     }else{
-                        return (a_to_string.toLowerCase() < b_to_string.toLowerCase() ? 1 : -1);
+                        return a[orderBy] ? 1 : b[orderBy] ? -1 : 0;
                     }
                 }
                 if(sortType==='asc'){
