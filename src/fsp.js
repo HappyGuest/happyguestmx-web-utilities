@@ -36,16 +36,27 @@ module.exports = {
                 let rightHas = b.hasOwnProperty(orderBy);
                 if (leftHas && rightHas) {
                     if(a[orderBy] && b[orderBy]){
-                        a_to_string=a[orderBy].toString();
-                        b_to_string=b[orderBy].toString();
-                        if(a_to_string.toLowerCase() === b_to_string.toLowerCase()){
-                            return 0;
-                        }
-                        if(sortType==='asc'){
-                            return (a_to_string.toLowerCase() > b_to_string.toLowerCase() ? 1 : -1);
+                        if(isNaN(a[orderBy]) && isNaN(b[orderBy])){
+                            a_to_string=a[orderBy].toString().toLowerCase();
+                            b_to_string=b[orderBy].toString().toLowerCase();
+                            if(a_to_string === b_to_string){
+                                return 0;
+                            }
+                            if(sortType==='asc'){
+                                return (a_to_string > b_to_string ? 1 : -1);
+                            }else{
+                                return (a_to_string < b_to_string ? 1 : -1);
+                            }
                         }else{
-                            return (a_to_string.toLowerCase() < b_to_string.toLowerCase() ? 1 : -1);
-                        }
+                            if(a[orderBy] === b[orderBy]){
+                                return 0;
+                            }
+                            if(sortType==='asc'){
+                                return (a[orderBy] > b[orderBy] ? 1 : -1);
+                            }else{
+                                return (a[orderBy] < b[orderBy] ? 1 : -1);
+                            }
+                        } 
                     }
                     if(sortType==='asc'){
                         return a[orderBy] ? -1 : b[orderBy] ? 1 : 0;
