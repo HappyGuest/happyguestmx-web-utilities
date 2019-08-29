@@ -76,6 +76,7 @@ async function cleanedObject(obj) {
 
 async function getCleanedString(st) {
   try {
+    st = st.trim();
     st = st.toLowerCase();
     st = st.replace(/á/gi, "a");
     st = st.replace(/é/gi, "e");
