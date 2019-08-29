@@ -30,16 +30,38 @@ module.exports = {
         };
         FSP.prototype.Sort = function (orderBy, sortType) {
             this.data.sort(function (a, b) {
+                a_to_string='';
+                b_to_string='';
                 let leftHas = a.hasOwnProperty(orderBy);
                 let rightHas = b.hasOwnProperty(orderBy);
                 if (leftHas && rightHas) {
-                    if(a[orderBy].toLowerCase() === b[orderBy].toLowerCase()){
-                        return 0;
+                    if(a[orderBy] && b[orderBy]){
+                        if(isNaN(a[orderBy]) && isNaN(b[orderBy])){
+                            a_to_string=a[orderBy].toString().toLowerCase();
+                            b_to_string=b[orderBy].toString().toLowerCase();
+                            if(a_to_string === b_to_string){
+                                return 0;
+                            }
+                            if(sortType==='asc'){
+                                return (a_to_string > b_to_string ? 1 : -1);
+                            }else{
+                                return (a_to_string < b_to_string ? 1 : -1);
+                            }
+                        }else{
+                            if(a[orderBy] === b[orderBy]){
+                                return 0;
+                            }
+                            if(sortType==='asc'){
+                                return (a[orderBy] > b[orderBy] ? 1 : -1);
+                            }else{
+                                return (a[orderBy] < b[orderBy] ? 1 : -1);
+                            }
+                        } 
                     }
                     if(sortType==='asc'){
-                        return (a[orderBy].toLowerCase() > b[orderBy].toLowerCase() ? 1 : -1);
+                        return a[orderBy] ? -1 : b[orderBy] ? 1 : 0;
                     }else{
-                        return (a[orderBy].toLowerCase() < b[orderBy].toLowerCase() ? 1 : -1);
+                        return a[orderBy] ? 1 : b[orderBy] ? -1 : 0;
                     }
                 }
                 if(sortType==='asc'){
