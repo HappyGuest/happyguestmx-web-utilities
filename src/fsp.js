@@ -1,7 +1,8 @@
 module.exports = {
     FSP: (function () {
-        function FSP(fullData, filterColums,filter=false) {
+        function FSP(fullData, filterColums,filter=false,sort=true) {
             this.filter = filter;
+            this.should_sort=sort;
             this.data = fullData;
             this.filterColums = filterColums;
         }
@@ -30,8 +31,8 @@ module.exports = {
         };
         FSP.prototype.Sort = function (orderBy, sortType) {
             this.data.sort(function (a, b) {
-                a_to_string='';
-                b_to_string='';
+                let a_to_string='';
+                let b_to_string='';
                 let leftHas = a.hasOwnProperty(orderBy);
                 let rightHas = b.hasOwnProperty(orderBy);
                 if (leftHas && rightHas) {
@@ -48,13 +49,10 @@ module.exports = {
                                 return (a_to_string < b_to_string ? 1 : -1);
                             }
                         }else{
-                            if(a[orderBy] === b[orderBy]){
-                                return 0;
-                            }
                             if(sortType==='asc'){
-                                return (a[orderBy] > b[orderBy] ? 1 : -1);
+                                return b[orderBy]-a[orderBy];
                             }else{
-                                return (a[orderBy] < b[orderBy] ? 1 : -1);
+                                return a[orderBy]-b[orderBy];
                             }
                         } 
                     }
@@ -100,7 +98,9 @@ module.exports = {
             if(this.filter){
                 this.Filter(query.queryString);
              }
-            this.Sort(query.orderBy, query.sortType);
+            if(this.should_sort){
+                this.Sort(query.orderBy, query.sortType);
+            }
             pagination.total = this.data.length;
             var top = Math.ceil(pagination.total / query.size);
             pagination.pageTop = top > 0 ? top : 1;
