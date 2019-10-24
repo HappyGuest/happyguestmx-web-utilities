@@ -146,8 +146,31 @@ async function validateGetImage(url, format) {
     }
 }
 
+async function amazonS3Uri(url){
+    try{
+        let domain = url.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "").split('/')[0];
+        const PATH_PATTERN= /.+?\:\/\/.+?(\/.+?)?(?:#|\?|)?$/;
+        const ENDPOINT_PATTERN = /^(.+\.)?s3[.-]([a-z0-9-]+)\./;
+        var patt = new RegExp(PATH_PATTERN);
+        var res = patt.exec(url);
+        let key = res[1].substr(1).split('?')[0];
+        let matches = domain.match(ENDPOINT_PATTERN);
+        let region = matches[2];
+        let bucket = domain.split('.')[0];
+        return { 
+          region: region, 
+          bucket: bucket,
+          key:key
+        };
+    }catch(err){
+      throw err;
+    }
+  }
+
+
 module.exports = {
     getImage,
     storeImage,
-    storeGallery
+    storeGallery,
+    amazonS3Uri
 };
