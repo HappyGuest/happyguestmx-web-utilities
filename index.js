@@ -7,7 +7,8 @@ const   activityLogHandler = require('./src/activityLogHandler'),
         paramsHandler = require('./src/paramsHandler'),
         response = require('./src/response'),
         userHandler = require('./src/userHandler'),
-        fsp = require('./src/fsp');
+        fsp = require('./src/fsp'),
+        ddbHelper = require('./src/ddbHelper');
 
 module.exports = {
     activityLogHandler,
@@ -17,5 +18,6 @@ module.exports = {
     paramsHandler,
     response,
     userHandler,
-    fsp
+    fsp,
+    ddbHelper
 }
