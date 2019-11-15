@@ -27,7 +27,7 @@ async function recursiveQuery(params, method) {
     do {
       var data = await dynamodbDocumentClient[method](params).promise();       
       response.Items = data.Items ? response.Items.concat(data.Items) : response.Items.concat([]);
-      response.Count = data.Count ? response.Count += data.Count : 0
+      response.Count = data.Count ? response.Count += data.Count : response.Count;
       params.ExclusiveStartKey = data ? data.LastEvaluatedKey : undefined;
     } while (data && typeof data.LastEvaluatedKey != "undefined");
     return response;
