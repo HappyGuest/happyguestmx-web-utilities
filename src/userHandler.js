@@ -84,7 +84,7 @@ async function findUserInStaffUsers(sub) {
   try {
     const params = {
       TableName: env.DDB_STAFF_USERS_TABLE,
-      ProjectionExpression: '#name, email,employee_number,picture,#uuid, #status, last_name, role_key, enabled, locale, notifications',
+      ProjectionExpression: '#name, email, employee_number, picture, #uuid, #status, last_name, role_key, enabled, locale, notifications',
       KeyConditionExpression: '#uuid = :uuid',
       ExpressionAttributeNames: {
         '#uuid': 'uuid',
@@ -310,7 +310,7 @@ async function findStaffUserByEmail(email) {
   try {
     const params = {
       TableName: env.DDB_STAFF_USERS_TABLE,
-      ProjectionExpression: '#name, email,employee_number,picture, #uuid, #status, last_name, role_key, enabled, locale, notifications',
+      ProjectionExpression: '#name, email,employee_number,picture, #uuid, #status, last_name, role_key, enabled, locale, notifications, picture',
       KeyConditionExpression: 'email = :email',
       IndexName: 'email-index',
       ExpressionAttributeValues: {
@@ -445,7 +445,7 @@ async function findStaffUserByEmplNumber(employee_number) {
   try {
     const params = {
       TableName: env.DDB_STAFF_USERS_TABLE,
-      ProjectionExpression: '#name, email, #uuid, #status, last_name, role_key, enabled, locale',
+      ProjectionExpression: '#name, email, #uuid, #status, last_name, role_key, enabled, locale, picture',
       KeyConditionExpression: 'employee_number = :employee_number',
       IndexName: 'employee_number-index',
       ExpressionAttributeNames: {
