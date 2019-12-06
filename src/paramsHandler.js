@@ -23,6 +23,9 @@ async function requestHandler(event) {
         case 'PUT':
           params = event.body;
           break;
+        case 'DELETE':
+          params = event.body;
+          break;
         default:
           params = {};
       }
@@ -42,6 +45,9 @@ async function requestHandler(event) {
             params = params.params;
             break;
           case 'PUT':
+            params = params.params;
+            break;
+          case 'DELETE':
             params = params.params;
             break;
           default:
