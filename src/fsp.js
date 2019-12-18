@@ -36,7 +36,7 @@ module.exports = {
                 let leftHas = a.hasOwnProperty(orderBy);
                 let rightHas = b.hasOwnProperty(orderBy);
                 if (leftHas && rightHas) {
-                    if(a[orderBy] && b[orderBy]){
+                    if(a[orderBy]!=null && b[orderBy]!=null){
                         if(isNaN(a[orderBy]) && isNaN(b[orderBy])){
                             a_to_string=a[orderBy].toString().toLowerCase();
                             b_to_string=b[orderBy].toString().toLowerCase();
