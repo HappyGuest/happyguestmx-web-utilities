@@ -1,13 +1,13 @@
 'use strict';
 
 const AWS = require('aws-sdk'),
+  ddbHelper = require('./ddbHelper'),
   env = process.env;
 
 AWS.config.update({
   region: env.REGION
 });
-const cognito = new AWS.CognitoIdentityServiceProvider(),
-  dynamodbDocumentClient = new AWS.DynamoDB.DocumentClient();
+const cognito = new AWS.CognitoIdentityServiceProvider();
 
 async function getUserFromJWT(AccessToken) {
   try {
@@ -73,7 +73,7 @@ async function findUserInAdminUsers(uuid, fields = []) {
     if (fields.length > 0) {
       params = await pushParamstoObject(fields, params);
     }
-    const res = await dynamodbDocumentClient.query(params).promise();
+    const res = await ddbHelper.recursiveQuery(params, 'query');
     return res;
   } catch (err) {
     throw (err);
@@ -95,7 +95,7 @@ async function findUserInStaffUsers(sub) {
         ':uuid': sub
       }
     };
-    return await dynamodbDocumentClient.query(params).promise();
+    return await ddbHelper.recursiveQuery(params, 'query');
   } catch (err) {
     throw (err);
   }
@@ -117,7 +117,7 @@ async function findUserInCoStaffUsers(sub) {
         ':uuid': sub
       }
     };
-    return await dynamodbDocumentClient.query(params).promise();
+    return await ddbHelper.recursiveQuery(params, 'query');
   } catch (err) {
     throw (err);
   }
@@ -139,7 +139,7 @@ async function findUserInConciergeUsers(sub) {
         ':uuid': sub
       }
     };
-    return await dynamodbDocumentClient.query(params).promise();
+    return await ddbHelper.recursiveQuery(params, 'query');
   } catch (err) {
     throw (err);
   }
@@ -217,7 +217,7 @@ async function getDDBHotel(hotel_uuid) {
         '#uuid': 'uuid'
       }
     };
-    const res = await dynamodbDocumentClient.scan(params).promise();
+    const res = await ddbHelper.recursiveQuery(params, 'scan');
     if (res.Count > 0) return (res.Items[0]);
     else throw ('Hotel not found');
   } catch (err) {
@@ -240,7 +240,7 @@ async function getManagerHotels(user_uuid) {
         '#user_uuid': 'user_uuid'
       }
     };
-    const res = await dynamodbDocumentClient.query(params).promise();
+    const res = await ddbHelper.recursiveQuery(params, 'query');
     for (const hotel of res.Items) {
       hotels.push(hotel.hotel_uuid);
     }
@@ -296,7 +296,7 @@ async function findAdminUserByEmail(email) {
         '#status': 'status'
       }
     };
-    const res = await dynamodbDocumentClient.query(params).promise();
+    const res = await ddbHelper.recursiveQuery(params, 'query');
     if (res.Count > 0 && res.Items[0].role_key === 'CO_manager') {
       res.Items[0].hotels = await getManagerHotels(res.Items[0].uuid);
     }
@@ -322,7 +322,7 @@ async function findStaffUserByEmail(email) {
         '#status': 'status'
       }
     };
-    const res = await dynamodbDocumentClient.query(params).promise();
+    const res = await ddbHelper.recursiveQuery(params, 'query');
     return res;
   } catch (err) {
     throw (err);
@@ -345,7 +345,7 @@ async function findCoStaffUserByEmail(email) {
         '#status': 'status'
       }
     };
-    const res = await dynamodbDocumentClient.query(params).promise();
+    const res = await ddbHelper.recursiveQuery(params, 'query');
     return res;
   } catch (err) {
     throw (err);
@@ -368,7 +368,7 @@ async function findConciergeByEmail(email) {
         '#status': 'status'
       }
     };
-    const res = await dynamodbDocumentClient.query(params).promise();
+    const res = await ddbHelper.recursiveQuery(params, 'query');
     return res;
   } catch (err) {
     throw (err);
@@ -411,7 +411,7 @@ async function findConciergeByEmplNumber(employee_number) {
         '#status': 'status'
       }
     };
-    const res = await dynamodbDocumentClient.query(params).promise();
+    const res = await ddbHelper.recursiveQuery(params, 'query');
     return res;
   } catch (err) {
     throw (err);
@@ -434,7 +434,7 @@ async function findCoStaffUserByEmplNumber(employee_number) {
         ':employee_number': employee_number,
       }
     };
-    const res = await dynamodbDocumentClient.query(params).promise();
+    const res = await ddbHelper.recursiveQuery(params, 'query');
     return res;
   } catch (err) {
     throw (err);
@@ -457,7 +457,7 @@ async function findStaffUserByEmplNumber(employee_number) {
         ':employee_number': employee_number,
       }
     };
-    const res = await dynamodbDocumentClient.query(params).promise();
+    const res = await ddbHelper.recursiveQuery(params, 'query');
     return res;
   } catch (err) {
     throw (err);
@@ -480,7 +480,7 @@ async function findAdminUserByEmplNumber(employee_number) {
         ':employee_number': employee_number,
       }
     };
-    const res = await dynamodbDocumentClient.query(params).promise();
+    const res = await ddbHelper.recursiveQuery(params, 'query');
     return res;
   } catch (err) {
     throw (err);
