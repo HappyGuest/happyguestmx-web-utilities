@@ -17,8 +17,11 @@ const dynamodbDocumentClient = new AWS.DynamoDB.DocumentClient();
 /*
  * this function invoke a recursive query or scan dynamodb method
  */
-async function recursiveQuery(params, method) {
+async function recursiveQuery(params, method,xray=false) {
   try {
+    if(xray){
+      xray.captureAWSClient(dynamodbDocumentClient.service);
+    }
     await validateRecursiveQueryParams(params, method);
     let response = {
       Items: [],
