@@ -8,8 +8,7 @@ const   activityLogHandler = require('./src/activityLogHandler'),
         response = require('./src/response'),
         userHandler = require('./src/userHandler'),
         fsp = require('./src/fsp'),
-        ddbHelper = require('./src/ddbHelper'),
-        xraySub = require('./src/xraySub');
+        ddbHelper = require('./src/ddbHelper');
 
 module.exports = {
     activityLogHandler,
@@ -20,6 +19,5 @@ module.exports = {
     response,
     userHandler,
     fsp,
-    ddbHelper,
-    xraySub
+    ddbHelper
 }
