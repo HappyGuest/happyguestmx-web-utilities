@@ -310,7 +310,7 @@ async function findStaffUserByEmail(email) {
   try {
     const params = {
       TableName: env.DDB_STAFF_USERS_TABLE,
-      ProjectionExpression: '#name, email,employee_number,picture, #uuid, #status, last_name, role_key, enabled, locale, notifications, picture',
+      ProjectionExpression: '#name, email,employee_number,picture, #uuid, #status, last_name, role_key, enabled, locale, notifications',
       KeyConditionExpression: 'email = :email',
       IndexName: 'email-index',
       ExpressionAttributeValues: {
