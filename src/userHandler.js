@@ -58,7 +58,7 @@ async function findUserInAdminUsers(uuid, fields = []) {
   try {
     let params = {
       TableName: env.DDB_ADMIN_USERS_TABLE,
-      ProjectionExpression: 'company_uuid, #name, email,employee_number,picture,#uuid, #status, last_name, role_key, enabled, hotel_uuids, locale, notifications',
+      ProjectionExpression: 'company_uuid, #name, email,employee_number,picture,#uuid, #status, last_name, role_key, enabled, hotel_uuids, locale, notifications, updated_at',
       IndexName: 'uuid-index',
       KeyConditionExpression: '#uuid = :uuid',
       ExpressionAttributeValues: {
@@ -84,7 +84,7 @@ async function findUserInStaffUsers(sub) {
   try {
     const params = {
       TableName: env.DDB_STAFF_USERS_TABLE,
-      ProjectionExpression: '#name, email, employee_number, picture, #uuid, #status, last_name, role_key, enabled, locale, notifications',
+      ProjectionExpression: '#name, email, employee_number, picture, #uuid, #status, last_name, role_key, enabled, locale, notifications, updated_at',
       KeyConditionExpression: '#uuid = :uuid',
       ExpressionAttributeNames: {
         '#uuid': 'uuid',
@@ -105,7 +105,7 @@ async function findUserInCoStaffUsers(sub) {
   try {
     const params = {
       TableName: env.DDB_CO_STAFF_USERS_TABLE,
-      ProjectionExpression: 'company_uuid, #name,employee_number,picture,email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, notifications, areas',
+      ProjectionExpression: 'company_uuid, #name,employee_number,picture,email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, notifications, areas, updated_at',
       KeyConditionExpression: '#uuid = :uuid',
       IndexName: 'uuid-index',
       ExpressionAttributeNames: {
@@ -127,7 +127,7 @@ async function findUserInConciergeUsers(sub) {
   try {
     const params = {
       TableName: env.DDB_HOTEL_CONCIERGES,
-      ProjectionExpression: 'company_uuid,employee_number,picture, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, notifications',
+      ProjectionExpression: 'company_uuid,employee_number,picture, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, notifications, updated_at',
       KeyConditionExpression: '#uuid = :uuid',
       IndexName: 'uuid-index',
       ExpressionAttributeNames: {
@@ -285,7 +285,7 @@ async function findAdminUserByEmail(email) {
   try {
     const params = {
       TableName: env.DDB_ADMIN_USERS_TABLE,
-      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuids, locale, notifications',
+      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuids, locale, notifications, updated_at',
       KeyConditionExpression: 'email = :email',
       IndexName: 'email-index',
       ExpressionAttributeValues: {
@@ -311,7 +311,7 @@ async function findStaffUserByEmail(email) {
   try {
     const params = {
       TableName: env.DDB_STAFF_USERS_TABLE,
-      ProjectionExpression: '#name, email,employee_number,picture, #uuid, #status, last_name, role_key, enabled, locale, notifications',
+      ProjectionExpression: '#name, email,employee_number,picture, #uuid, #status, last_name, role_key, enabled, locale, notifications, updated_at',
       KeyConditionExpression: 'email = :email',
       IndexName: 'email-index',
       ExpressionAttributeValues: {
@@ -334,7 +334,7 @@ async function findCoStaffUserByEmail(email) {
   try {
     const params = {
       TableName: env.DDB_CO_STAFF_USERS_TABLE,
-      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, notifications, areas',
+      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, notifications, areas, updated_at',
       KeyConditionExpression: 'email = :email',
       IndexName: 'email-index',
       ExpressionAttributeValues: {
@@ -357,7 +357,7 @@ async function findConciergeByEmail(email) {
   try {
     const params = {
       TableName: env.DDB_HOTEL_CONCIERGES,
-      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, notifications',
+      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, notifications, updated_at',
       KeyConditionExpression: 'email = :email',
       IndexName: 'email-index',
       ExpressionAttributeValues: {
@@ -400,7 +400,7 @@ async function findConciergeByEmplNumber(employee_number) {
   try {
     const params = {
       TableName: env.DDB_HOTEL_CONCIERGES,
-      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, notifications',
+      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, notifications, updated_at',
       KeyConditionExpression: 'employee_number = :employee_number',
       IndexName: 'employee_number-index',
       ExpressionAttributeValues: {
@@ -423,7 +423,7 @@ async function findCoStaffUserByEmplNumber(employee_number) {
   try {
     const params = {
       TableName: env.DDB_CO_STAFF_USERS_TABLE,
-      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, areas',
+      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, areas, updated_at',
       KeyConditionExpression: 'employee_number = :employee_number',
       IndexName: 'employee_number-index',
       ExpressionAttributeNames: {
@@ -446,7 +446,7 @@ async function findStaffUserByEmplNumber(employee_number) {
   try {
     const params = {
       TableName: env.DDB_STAFF_USERS_TABLE,
-      ProjectionExpression: '#name, email, #uuid, #status, last_name, role_key, enabled, locale, picture',
+      ProjectionExpression: '#name, email, #uuid, #status, last_name, role_key, enabled, locale, picture, updated_at',
       KeyConditionExpression: 'employee_number = :employee_number',
       IndexName: 'employee_number-index',
       ExpressionAttributeNames: {
@@ -469,7 +469,7 @@ async function findAdminUserByEmplNumber(employee_number) {
   try {
     const params = {
       TableName: env.DDB_ADMIN_USERS_TABLE,
-      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale',
+      ProjectionExpression: 'company_uuid, #name, email, #uuid, #status, last_name, role_key, enabled, hotel_uuid, locale, updated_at',
       KeyConditionExpression: 'employee_number = :employee_number',
       IndexName: 'employee_number-index',
       ExpressionAttributeNames: {
